@@ -6,7 +6,7 @@ def convert_bp_to_decimal(string_value):
     # Remove ' bp' and convert to float
     numerical_part = float(string_value.replace(' bp', ''))
     # Convert basis points to decimal
-    return numerical_part / 10000
+    return numerical_part / 100
 
 def get_bond_data():
     bonds_url = 'https://www.worldgovernmentbonds.com/'
@@ -33,15 +33,16 @@ bond_data = get_bond_data()
 
 bond_data.style
 
-print(bond_data)
+print("\nBond Data:\n"+str(bond_data))
 
-us_bond_yield = bond_data.loc[bond_data['Country'] == 'United States', 'Spread vs T-Note'].values[0]
+us_bond_yield = convert_bp_to_decimal(bond_data.loc[bond_data['Country'] == 'United States', 'Spread vs T-Note'].values[0])
 
 def default_spread():
     bond_data['Spread'] = bond_data['10yr Bond Yield'] - us_bond_yield
     return bond_data
 
-spread_table = default_spread()[['Country', '10yr Bond Yield', 'Spread vs T-Note']]
+spread_table = default_spread()[['Country', '10yr Bond Yield', 'Spread', 'Spread vs T-Note']]
+
 
 print(spread_table)
 

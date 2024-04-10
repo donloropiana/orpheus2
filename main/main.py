@@ -70,10 +70,16 @@
 import analysis
 import datetime as dt
 
-ticker = 'AAPL'
-today = dt.date.today()
+ticker = None
+today = None
+
+def setup():
+    ticker = input("Enter the stock ticker: ")
+    today = dt.date.today()
+    return ticker, today
 
 def main():
+    ticker, today = setup()
     pass
 
 if __name__ == "__main__":
