@@ -1,5 +1,5 @@
 import valuation_models.dcf
-import machine_learning.models.time_series
+import Orpheus2.machine_learning.time_series
 import data_retrieval.yahoo_data
 
 def integrated_analysis(ticker):
