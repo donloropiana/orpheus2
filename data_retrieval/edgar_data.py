@@ -6,10 +6,6 @@ __maintainer__ = "Max Bushala"
 __email__ = "maxbushala@gmail.com"
 __status__ = "Production"
 
-# from IPython.core.display import display, HTML
-# install fuzzywuzzy
-# pip install python-Levenshtein (speeds up fuzzywuzzy)
-
 # Check out https://github.com/GGRusty/Edgar_Video_content/blob/main/Part_5/edgar_functions.py It is very similar.
 
 import requests
@@ -19,11 +15,13 @@ from bs4 import BeautifulSoup
 import os, shutil
 from lxml import etree
 import numpy as np
-import tkinter as tk
 import yfinance as yf
 import datetime as dt
 
-# https://github.com/farhadab/sec-edgar-financials
+print("\n\n\n\n\n\n\n\n")
+print("\n\n______________________________________________________________________________________________________________________________________________________________________________")
+print("\nSTART OF edgar_data.py SCRIPT")
+print("______________________________________________________________________________________________________________________________________________________________________________\n\n")
 
 stock = "PFE"
 
@@ -32,7 +30,6 @@ info = ticker.info
 industry = info.get('industry')
 industryKey = info.get('industryKey')
 exchange = info.get('exchange')
-# exchange = evedgar.financialdata['dei:SecurityExchangeName']['#text'] # Use fuzzywuzzy to find most similar document name to SecurityExchangeName
 
 history = ticker.history(period="3y")
 closing_prices = history['Close']
@@ -46,76 +43,6 @@ fiscal_year = {'income_statements' : ticker.financials,
 quarterly = {'income_statements' : ticker.quarterly_financials,
                'balance_sheets' : ticker.quarterly_balance_sheet,
                'cash_flows' : ticker.quarterly_cashflow}
-
-revenues = ''
-operating_income = ''
-bv_equity = ''
-bv_debt = ''
-operating_lease = True
-cash_and_cross_holdings = ''
-non_operating_assets = ''
-minority_interests = ''
-shares_outstanding = '' 
-current_stock_price = ''
-effective_tax_rate = ''
-marginal_tax_rate = ''
-cagr_4yr = ''
-target_pretax_operating_margin = ''
-sales_to_capital_ratio = ''
-risk_free_rate = '' # find this by understanding which countries the business operates in as well as these countries' country risks. #us-gaap/SegmentReportingDisclosureTextBlock
-initial_cost_of_capital = ''
-employee_options = {
-    'outstanding' : '',
-    'avg_strike_price' : '',
-    'avg_maturity' : '',
-    'std_dev_stock_price' : ''
-                    }
-
-# us-gaap:RevenueFromContractWithCustomerTextBlock.html
-# us-gaap:ScheduleOfDebtInstrumentsTextBlock.html
-# SegmentReportingDisclosureTextBlock.html
-# us-gaap:DisaggregationOfRevenueTableTextBlock
-
-# print(quarterly['income_statements'].loc['Total Revenue'])
-
-# Use fuzzy wuzzy to match line items to line items
-# quarterly_input_data = {
-#     'industry' : industry,
-#     'total_revenue' : quarterly['income_statements'].loc['Total Revenue'],
-#     'operating_income' : quarterly['income_statements'].loc['Operating Income'],
-#     'bv_equity' : quarterly['balance_sheets'].loc['Stockholders Equity'],
-#     'bv_debt' : quarterly['balance_sheets'].loc['Total Debt'], # Total Debt for security. More often than not, net debt is not listed.
-#     'operating_lease_commitments' : 'yes',
-#     'cash_and_cross_holdings' : (), # might need to use SEC data
-#     'non_operating_assets' : None,
-#     'minority_interests' : None,
-#     'shares_outstanding' : None,
-#     'current_stock_price' : None,
-#     'effective_tax_rate' : None,
-#     'marginal_tax_rate' : None,
-#     'cagr_5yr' : None,
-#     'target_pretax_operating_margin' : None,
-#     'sales_to_capital_ratio' : None,
-#     'risk_free_rate' : None,
-#     'initial_cost_of_capital' : None,
-#     'employee_options' : {
-#         'status' : False,
-#         'options_outstanding' : None,
-#         'avg_strike_price' : None,
-#         'avg_maturity' : None
-#         },
-#     'stock_price_std_dev' : None
-#     }
-
-# print(quarterly_input_data['total_revenue'])
-# https://www.alphavantage.co/documentation/
-
-# april presentation of AswathGPT
-# Volatility and Risk Institute — AI conference with Vasant Dhar
-
-print("\nCompany Information:\n"+str(info))
-
-print("\nExchange:\n"+str(exchange))
 
 us_exchange_codes = {
     'NYQ' : ['NYSE', '^NYA'],
@@ -139,8 +66,6 @@ market_returns = market_closing_prices.pct_change().dropna()
 covariance = np.cov(market_returns.dropna().values, returns.dropna().values)[0, 1]
 
 levered_beta = covariance/variance_returns
-
-print("\nBeta:\n" + str(levered_beta))
 
 def get_bond_data():
     bonds_url = 'https://www.worldgovernmentbonds.com/'
@@ -178,8 +103,6 @@ def print_bond_yields():
         print(f"{bond_data.iloc[i]['Country']}: {bond_data.iloc[i]['10yr Bond Yield']}")
     return None
 
-# print(bond_data)
-
 
 us_bond_yield = bond_data.loc[bond_data['Country'] == 'United States', '10yr Bond Yield'].values[0]
 
@@ -189,34 +112,13 @@ def default_spread():
 
 spread_table = default_spread()[['Country', '10yr Bond Yield', 'Spread']]
 
-print(f"\nSpreads:\n{spread_table}")
-
-print(f"\nUS Bond Yield:\n{us_bond_yield}")
-
-
 def expected_market_return():
     erm = market_history['Returns'].iloc[-1]
-    print("\nMost Recent Market Return:\n"+str(erm))
     return erm
 
 erm = expected_market_return()
 
 us_mature_erp = erm - us_bond_yield
-
-print(f"\nMature Market Equity Risk Premium:\n {us_mature_erp}")
-
-# END OF YFINANCE SECTION
-####################################################################################################################################################################################################################################
-
-
-
-
-# Look at accounting statements in SEC EDGAR
-# Don't use a 10K unless it's the new year and that the 10K is recently printed. You'll want to take the last four quarter reports (10Qs) (trailing twelves months, last twelve months [LTM])
-# Go with trailing twelve month numbers
-
-################################################################################################################################################################################################################################
-# Company Financial Data Retrieval from SEC
 
 today = dt.date.today()
 
@@ -371,7 +273,7 @@ labels_dict = {fact: details["label"] for fact, details in company_facts.items()
 
 filing_dataframe = pd.DataFrame.from_dict(filingData['filings']['recent']) # all the recent filings
 
-print(f"\nReport Data Frame:\n{filing_dataframe['reportDate']}")
+
 
 #! Switch this to 10Qs and sum four for annual report 
 def get_10K(filings_df):
@@ -386,7 +288,7 @@ def get_10K(filings_df):
     """
     df_10K = filings_df[filings_df['form'] == '10-K']
     most_recent_10K = df_10K.sort_values(by='reportDate', ascending=False).head(1)
-    print(f"\nMost Recent 10K:\n{most_recent_10K}")
+    # print(f"\nMost Recent 10K:\n{most_recent_10K}")
     return most_recent_10K.iloc[0]
 
 def get_accession_number(most_recent_10K) -> str:
@@ -499,17 +401,6 @@ def save_data(financialdata):
         save_doc(k, v, location)
     return None
 
-# save_data(financialdata)
-
-# print(financialdata['us-gaap:SegmentReportingDisclosureTextBlock'])
-# SOLUTION: fuzzy matching
-# https://www.msci.com/our-solutions/indexes/gics
-# ask Aswath to scrape his website
-# file:///Users/maxbushala/Downloads/WMGFinancialData/us-gaap:ScheduleOfRevenuesFromExternalCustomersAndLongLivedAssetsByGeographicalAreasTableTextBlock.html
-# file:///Users/maxbushala/Downloads/WMGFinancialData/us-gaap:ScheduleOfRevenuesFromExternalCustomersAndLongLivedAssetsByGeographicalAreasTableTextBlock.html
-# file:///Users/maxbushala/Downloads/WMGFinancialData/us-gaap:RevenueRemainingPerformanceObligationExpectedTimingOfSatisfactionTableTextBlock.html
-# LesseeOperatingLeasesTextBlock
-
 def get_namespaces(url):
     # Fetch the content from the URL
     response = requests.get(url, headers = headers)
@@ -531,14 +422,6 @@ def get_namespaces(url):
         raise ValueError("Failed to retrieve content from URL")
 
 namespaces = get_namespaces(form10K_url)
-
-# Now that I have a way of parsing xbrl data and html data I should do the following:
-# 1. Fix the line_items dictionary to best reflect the data we need to find
-# 2. Create lists of financial filings relevant to each data we're looking for in line_items
-# 3. Write a function that finds the filings from the current company that fit the namespace of each item in line_items the closest using fuzzywuzzy
-# 4. Write a function that identifies each of the returned files' type (xbrl vs html) from the list of files and then sends it to its respective parser (step 4)
-# 5. Rewrite the parsers to take the key of the current line_items item and the filings for the current company that best match that line item 
-# and uses those inputs to find the most likely line items and their data in a table using fuzzywuzzy
 
 def _get_file_name(report):
     """
@@ -684,15 +567,88 @@ def get_statement_soup(ticker, accession_number, statement_name, headers, statem
     except requests.RequestException as e:
         raise ValueError(f"Error fetching the statement: {e}")
 
+def get_table_from_url(url):
+    # Fetch the page content
+    try:
+        response = requests.get(url, headers=headers, verify=False)
+        response.raise_for_status()  # Check for HTTP request errors
+    except Exception as e:
+        print(f"Error fetching the page: {e}")
+        return None
 
-################################################################################################################################################################################################################################
-# RUNNING SCRIPT
+    # Parse the HTML content
+    soup = BeautifulSoup(response.content, 'html.parser')
+    
+    # Find the first table
+    table = soup.find('table')
+    
+    # Read the table into a DataFrame
+    df = pd.read_html(str(table))[0]
+    
+    return df
+
+country_equity_risk_premiums = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html')
+rev_multiples = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/psdata.html')
+sector_betas = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html')
+sector_cost_of_equity_and_capital = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/wacc.htm')
+sector_price_and_value_to_book_ratio = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/pbvdata.html')
+
+input_data = {
+    'Total Revenue' : fiscal_year['income_statements'].loc['Total Revenue'],
+    'Operating Income' : fiscal_year['income_statements'].loc['Operating Income'],
+    'Interest Expense' : fiscal_year['income_statements'].loc['Interest Expense'],
+    'Book Value of Equity' : fiscal_year['balance_sheets'].loc['Total Equity Gross Minority Interest'],
+    'Book Value of Debt' : fiscal_year['balance_sheets'].loc['Total Debt'],
+    'Cash and Marketable Securities' : fiscal_year['balance_sheets'].loc['Cash Cash Equivalents And Short Term Investments'],
+    'Cross Holdings and Non-Operating Assets' : fiscal_year['balance_sheets'].loc['Long Term Equity Investment'],
+    'Minority Interest' : fiscal_year['balance_sheets'].loc['Minority Interest']
+}
+
+linear_input_data = {
+    'Has R&D Expenses' : True,
+    'Has Operating Leases' : True,
+    'Current Shares Outstanding' : info.get('sharesOutstanding'),
+    'Current Stock Price' : closing_prices.iloc[-1],
+    'Effective Tax Rate' : fiscal_year['income_statements'].loc['Tax Rate For Calcs'].iloc[0],
+    'Marginal Tax Rate' : 0,
+}
 
 substring = "Schedule of Operating Lease Liability Maturity"
 
 taxonomy_definitions = get_taxonomy()[1]
 
 statements_names = get_statement_file_names_in_filing_summary(company_ticker, accession_number, headers)
+
+statement = financialdata.keys()
+
+input_df = pd.DataFrame(input_data).T
+
+linear_input_df = pd.DataFrame([linear_input_data]).T
+
+################################################################################################################################################################################################################################
+# RUNNING SCRIPT
+
+print("\n______________________________________________________________________________________________________________________________________________________________________________")
+print(f"____________________________________________________________________________VALUATION OF {company_ticker}__________________________________________________________________________________")
+print("______________________________________________________________________________________________________________________________________________________________________________\n")
+
+print("\nCompany Information:\n"+str(info))
+
+print("\nExchange:\n"+str(exchange))
+
+print("\nMost Recent Market Return:\n"+str(erm))
+
+print("\nBeta:\n" + str(levered_beta))
+
+print(f"\nSpreads:\n{spread_table}")
+
+print(f"\nUS Bond Yield:\n{us_bond_yield}")
+
+print(f"\nMature Market Equity Risk Premium:\n {us_mature_erp}")
+
+print(f"\nReport Data Frame:\n{filing_dataframe['reportDate']}")
+
+# save_data(financialdata)
 
 print("\ncompany_CIK:\n" + str(company_CIK))
 
@@ -704,6 +660,8 @@ print("\nreportDate:\n" + str(report_date))
 
 print("\nNamespaces:\n" + str(namespaces))
 
+print(f"\nMost Recent 10K:\n{current_10K}")
+
 print("\nForm 10K URL:\n" + str(form10K_url))
 
 # print(f"\n{financialdata.keys()}")
@@ -712,14 +670,11 @@ print("\nFinancial Statements:\n" + str(statements_names))
 
 # print(f"\nMatch for {substring}:\n" + str(get_filing_matches(substring, taxonomy_definitions)[0]))
 
-print('\nFinancial Statement Keys:\n')
-statement = financialdata.keys()
-
-print("\nFinancial Statement Data:\n" + str(statement))
+print("\nFinancial Statement Keys:\n" + str(statement))
 
 print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
 
-print('\nFinancial Statement Keys From Yahoo Finance:\n')
+print('\nFinancial Statement Data:\n')
 print('\nIncome Statements')
 print(quarterly['income_statements'].index)
 print('\nBalance Sheets')
@@ -737,8 +692,7 @@ print('\nCash Flows')
 print(fiscal_year['cash_flows'])
 print('')
 
-print ('\nQuarterly')
-print('______________\n')
+print ('\nQuarterly\n______________\n')
 print('\nIncome Statements')
 print(quarterly['income_statements'])
 print('\nBalance Sheets')
@@ -749,15 +703,22 @@ print('')
 
 print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
 
+print ('\nExternal Data (from Aswath Damodaran):\n__________________________________')
 
-print ('\nFinancial Items:\n______________')
-print("\nResearch and Development Expenses:")
-print("\nCurrent 10K\n"+str(fiscal_year['income_statements']['2023-12-31']['Research And Development']))
-print("\nPrevious 10K\n"+str(fiscal_year['income_statements']['2022-12-31']['Research And Development']))
-print("\n10K Before Last 10K\n"+str(fiscal_year['income_statements']['2021-12-31']['Research And Development']))
+print("\nCountry Equity Risk Premium Data:\n" + str(country_equity_risk_premiums))
 
-print("\n\nNon-Operating Assets (Long Term Investments):")
-print("\nCurrent Year\n"+str(fiscal_year['balance_sheets']['2023-12-31']['Long Term Equity Investment']))
+print("\nUS Sector Revenue Multiples Data:\n" + str(rev_multiples))
 
-print("\n\\nInterest Expense:")
-print("\nCurrent 10K\n"+str(fiscal_year['income_statements']['2023-12-31']['Interest Expense']))
+print("\nUS Sector Beta Data:\n" + str(sector_betas))
+
+print("\nUS Sector Cost of Equity and Capital Data:\n" + str(sector_cost_of_equity_and_capital))
+
+print("\nUS Sector Price and Value to Book Ratio Data:\n" + str(sector_price_and_value_to_book_ratio))
+
+print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
+
+print ('\nInput Data to Return:\n______________')
+
+print("\nInput Data\n" + str(input_df))
+
+print("\nLinear Input Data\n" + str(linear_input_df))
