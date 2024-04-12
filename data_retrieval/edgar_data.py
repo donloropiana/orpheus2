@@ -23,7 +23,7 @@ print("\n\n_____________________________________________________________________
 print("\nSTART OF edgar_data.py SCRIPT")
 print("______________________________________________________________________________________________________________________________________________________________________________\n\n")
 
-stock = "PFE"
+stock = "WMG"
 
 ticker = yf.Ticker(stock)
 info = ticker.info
@@ -72,9 +72,7 @@ def get_bond_data():
     bd_resp = requests.get(bonds_url)
     soup = BeautifulSoup(bd_resp.content, 'html.parser')
     bond_table = soup.find('table', {'class' : 'homeBondTable sortable w3-table money pd44 -f14'})
-    bond_file = open('/Users/maxbushala/Downloads/bond_data.txt', 'w')
-    bond_file.write(str(bond_table.prettify()))
-    bond_file.close()
+
     bond_data = []
     for row in bond_table.find_all('tr'):
         row_data = []
@@ -593,6 +591,10 @@ sector_betas = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Hom
 sector_cost_of_equity_and_capital = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/wacc.htm')
 sector_price_and_value_to_book_ratio = get_table_from_url('https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/pbvdata.html')
 
+
+us_erp_data = country_equity_risk_premiums[country_equity_risk_premiums[0] == 'United States']
+us_corporate_tax_rate = us_erp_data.iloc[0, 4]
+
 input_data = {
     'Total Revenue' : fiscal_year['income_statements'].loc['Total Revenue'],
     'Operating Income' : fiscal_year['income_statements'].loc['Operating Income'],
@@ -603,6 +605,8 @@ input_data = {
     'Cross Holdings and Non-Operating Assets' : fiscal_year['balance_sheets'].loc['Long Term Equity Investment'],
     'Minority Interest' : fiscal_year['balance_sheets'].loc['Minority Interest']
 }
+
+
 
 linear_input_data = {
     'Has R&D Expenses' : True,
@@ -722,3 +726,7 @@ print ('\nInput Data to Return:\n______________')
 print("\nInput Data\n" + str(input_df))
 
 print("\nLinear Input Data\n" + str(linear_input_df))
+
+
+
+print("US Corporate Tax Rate" + str(type(us_corporate_tax_rate)))
