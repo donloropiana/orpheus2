@@ -1,3 +1,39 @@
+import subprocess
+import sys
+
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+def import_or_install(package):
+    try:
+        __import__(package)
+        print(f"{package} is already installed.")
+    except ImportError:
+        print(f"{package} not found, installing...")
+        install(package)
+
+# List of packages you need to use
+packages = ['requests', 
+             'pandas', 
+             'xmltodict', 
+             'bs4', 
+             'os', 
+             'shutil', 
+             'lxml', 
+             'numpy', 
+             'yfinance', 
+             'datetime', 
+             'neuralprophet', 
+             'matplotlib', 
+             'time', 
+             'plotly', 
+             'statsmodels', 
+             'pandas.tseries.holiday', 
+             're']
+
+for package in packages:
+    import_or_install(package)
+
 import requests
 import pandas as pd
 import xmltodict
@@ -15,7 +51,6 @@ import plotly.express as px
 import statsmodels.api as sm
 from pandas.tseries.holiday import USFederalHolidayCalendar
 import re
-import streamlit as st
 
 # ================================================================================================================================================================================================== #
 
@@ -146,7 +181,6 @@ class valuation:
         """
         df_10K = filings_df[filings_df['form'] == '10-K']
         most_recent_10K = df_10K.sort_values(by='reportDate', ascending=False).head(1)
-        # print(f"\nMost Recent 10K:\n{most_recent_10K}")
         return most_recent_10K.iloc[0]
     
     def get_accession_number(self, most_recent_10K) -> str:
@@ -724,8 +758,8 @@ class valuation:
                     projection_table['future_years'][f'Year {year+1}']['Tax Rate'] = projection_table['base_year']['Tax Rate']
 
                     # setting the year 1 NOPAT line item
-                    if(projection_table['future_years'][f'Year {year+1}']['Operating Income'].iloc[0] > 0):
-                        if(projection_table['future_years'][f'Year {year+1}']['Operating Income'].iloc[0] < projection_table['base_year']['NOL']):
+                    if(projection_table['future_years'][f'Year {year+1}']['Operating Income'] > 0): # .iloc[0]
+                        if(projection_table['future_years'][f'Year {year+1}']['Operating Income'] < projection_table['base_year']['NOL']): #.iloc[0]
                             projection_table['future_years'][f'Year {year+1}']['NOPAT'] = projection_table['future_years'][f'Year {year+1}']['Operating Income']
                         else:
                             projection_table['future_years'][f'Year {year+1}']['NOPAT'] = projection_table['future_years'][f'Year {year+1}']['Operating Income'] - (projection_table['future_years'][f'Year {year+1}']['Operating Income'] - projection_table['base_year']['NOL']) * projection_table['future_years'][f'Year {year+1}']['Tax Rate']
@@ -869,7 +903,10 @@ class valuation:
                     projection_table['future_years'][f'Year {year+1}']['PV(FCFF)']
                     pass
                 pass
-
+        valuation_output_dictionary['projection_table'] = projection_table
+        valuation_output_dictionary['summary_table'] = summary_table
+        valuation_output_dictionary['implied_variables_table'] = implied_variables_table
+        
         # terminal value projection
         return valuation_output_dictionary
     
@@ -937,7 +974,6 @@ class valuation:
 
         bond_data.style
 
-        # print(bond_data.iloc[0]['10yr Bond Yield'])
         us_bond_yield = bond_data.loc[bond_data['Country'] == 'United States', '10yr Bond Yield'].values[0]
 
         spread_table = self.default_spread(bond_data, us_bond_yield)[['Country', '10yr Bond Yield', 'Spread']]
@@ -1038,13 +1074,6 @@ class valuation:
         xml_parsed = self.xml_to_dict(form10K_url)
 
         financialdata = xml_parsed['xbrl'] # THIS WOULD BE THE ONE TO USe ARELLE / PYTHON-XBRL LIBRARIES ON!!!
-        # print(financialdata.keys())
-
-        # usgaap_financials = {k: v for k, v in xml_parsed['xbrl'].items() if k.startswith('us-gaap')}
-        # print("\nUS-GAAP Financial Statements:\n")
-        # print(usgaap_financials.keys())
-
-
 
         namespaces = self.get_namespaces(form10K_url)
 
@@ -1305,134 +1334,13 @@ class valuation:
                 },
             },
         }
-
+        
+        # ====================================================================================================================================================================================
+        # ====================================================================================================================================================================================
         valuation_output = self.valuation_comps(valuation_output, input_data)
-
-
-        """# **Output**"""
-
-        print("\n______________________________________________________________________________________________________________________________________________________________________________")
-        print(f"____________________________________________________________________________VALUATION OF {company_ticker}__________________________________________________________________________________")
-        print("______________________________________________________________________________________________________________________________________________________________________________\n")
-
-        print("\nCompany Information:\n"+str(info))
-
-        print("\nExchange:\n"+str(exchange))
-
-        print("\nMost Recent Market Return:\n"+str(erm))
-
-        print("\nBeta:\n" + str(levered_beta))
-
-        print(f"\nSpreads:\n{spread_table}")
-
-        print(f"\nUS Bond Yield:\n{us_bond_yield}")
-
-        print(f"\nMature Market Equity Risk Premium:\n {us_mature_erp}")
-
-        print(f"\nReport Data Frame:\n{filing_dataframe['reportDate']}")
-
-        # save_data(financialdata)
-
-        print("\ncompany_CIK:\n" + str(company_CIK))
-
-        print("\naccession_number:\n" + str(accession_number))
-
-        print("\nprimaryDocument:\n" + str(primaryDocument))
-
-        print("\nreportDate:\n" + str(report_date))
-
-        print("\nNamespaces:\n" + str(namespaces))
-
-        print(f"\nMost Recent 10K:\n{current_10K}")
-
-        print("\nForm 10K URL:\n" + str(form10K_url))
-
-        # print(f"\n{financialdata.keys()}")
-
-        print("\nFinancial Statements:\n" + str(statements_names))
-
-        # print(f"\nMatch for {substring}:\n" + str(get_filing_matches(substring, taxonomy_definitions)[0]))
-
-        print("\nFinancial Statement Keys:\n" + str(statement))
-
-        print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
-
-        print('\nFinancial Statement Data:\n')
-        print('\nIncome Statements')
-        print(quarterly['income_statements'].index)
-        print('\nBalance Sheets')
-        print(quarterly['balance_sheets'].index)
-        print('\nCash Flows')
-        print(quarterly['cash_flows'].index)
-        print()
-
-        print('\nFiscal Year\n______________\n')
-        print('\nIncome Statements')
-        print(fiscal_year['income_statements'])
-        print('\nBalance Sheets')
-        print(fiscal_year['balance_sheets'])
-        print('\nCash Flows')
-        print(fiscal_year['cash_flows'])
-        print('')
-
-        print('\nQuarterly\n______________\n')
-        print('\nIncome Statements')
-        print(quarterly['income_statements'])
-        print('\nBalance Sheets')
-        print(quarterly['balance_sheets'])
-        print('\nCash Flows')
-        print(quarterly['cash_flows'])
-        print('')
-
-        print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
-
-        print('\nExternal Data (from Aswath Damodaran):\n__________________________________')
-
-        print("\nCountry Equity Risk Premium Data:\n" + str(country_equity_risk_premiums))
-
-        print("\nUS Sector Revenue Multiples Data:\n" + str(rev_multiples))
-
-        print("\nUS Sector Beta Data:\n" + str(sector_betas))
-
-        print("\nUS Sector Cost of Equity and Capital Data:\n" + str(sector_cost_of_equity_and_capital))
-
-        print("\nUS Sector Price and Value to Book Ratio Data:\n" + str(sector_price_and_value_to_book_ratio))
-
-        print("\nSynthetic Credit Default Ratings:\n" + str(synthetic_default_ratings))
-
-        print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
-
-        print('\nInput Data to Return:\n______________')
-
-        print("\n10K Input Data\n" + str(input_10K_df))
-
-        print("\n10Q Input Data\n" + str(input_10Q_df))
-
-        print("\nLast Twelve Months Input Data\n" + str(input_ltm_df))
-
-        print("\nLinear Input Data\n" + str(linear_input_df))
-
-
-        # print("\nLast Twelve Month Data\n" + str(ltm_data))
-
-        print("\n______________________________________________________________________________________________________________________________________________________________________________\n")
-
-        print("\nValuation Output:\n")
-
-        print("\nProjection Table:\n")
-        print(valuation_output['projection_table'])
-
-        st.write('\nProjections\n', valuation_output['projection_table'])
-
-        print("\nSummary Table:\n")
-        print(valuation_output['summary_table'])
-
-        st.write('\nSummary\n', valuation_output['summary_table'])
-
-        print("\nImplied Variables Table:\n")
-        print((valuation_output['implied_variables_table']))
-
-        st.write('\nImplied Variables\n', valuation_output['implied_variables_table'])
+        self.valuation = valuation_output
+        # ====================================================================================================================================================================================
+        # ====================================================================================================================================================================================
 
         country_equity_risk_premiums = self.fix_df(country_equity_risk_premiums)
         country_equity_risk_premiums
@@ -1462,10 +1370,6 @@ class valuation:
         set_log_level("ERROR")
 
         set_random_seed(0)
-
-        # Check current structure
-        print(aligned_index_data.head())
-        print(aligned_index_data.columns)
 
         # If 'Date' is not a column, reset the index to make it a column
         if 'Date' not in aligned_index_data.columns:
@@ -1510,7 +1414,7 @@ class valuation:
         fig.update_xaxes(
             rangeslider_visible= True
                         )
-        fig.show()
+        # fig.show()
 
         stock_price_res = sm.tsa.seasonal_decompose(stock_price_time_series[['y']],
                                         model='additive', period=12)
@@ -1546,7 +1450,7 @@ class valuation:
         fig.update_xaxes(
             rangeslider_visible = True
                         )
-        fig.show()
+        # fig.show()
 
         stock_return_res = sm.tsa.seasonal_decompose(stock_return_time_series[['y']],
                                         model='additive', period=12)
@@ -1604,10 +1508,4 @@ class valuation:
         climate_data_url = 'https://developer.rms.com/climate-on-demand'
         # moodys api key in colab secret keys
         
-        return valuation_output
-    
-valuation = valuation("WMG")
-
-valuation_table = valuation.get_valuation()
-
-print(valuation_table)
+        print(self.valuation)
