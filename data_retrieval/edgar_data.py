@@ -102,7 +102,7 @@ def print_bond_yields():
     return None
 
 
-us_bond_yield = bond_data.loc[bond_data['Country'] == 'United States', '10yr Bond Yield'].values[0]
+us_bond_yield = bond_data.loc[bond_data['Country'] == 'United States (*)', '10yr Bond Yield'].values[0]
 
 def default_spread():
     bond_data['Spread'] = bond_data['10yr Bond Yield'] - us_bond_yield
