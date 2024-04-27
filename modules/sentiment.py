@@ -66,4 +66,8 @@ def press_release_df(company_name):
 
 def company_sentiment(ticker: str) -> int:
     df = press_release_df(ticker)
-    return df["Polarity"].mean()
+    try:
+        polarity = df["Polarity"].mean()
+    except KeyError:
+        polarity = -2
+    return polarity
