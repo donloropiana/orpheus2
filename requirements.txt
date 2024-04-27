@@ -1,0 +1,14 @@
+pandas
+textblob
+requests
+yfinance
+streamlit
+neuralprophet
+matplotlib
+plotly
+statsmodels
+numpy
+lxml
+datetime
+xmltodict
+bs4
