@@ -1,4 +1,4 @@
-from orpheus2 import valuation
+from orpheus import valuation
 import sqlite3
 from sqlite3 import Error
 class sqltime():
