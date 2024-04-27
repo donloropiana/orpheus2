@@ -1,0 +1,91 @@
+from orpheus2 import valuation
+import sqlite3
+from sqlite3 import Error
+class sqltime():
+    def __init__(self, db_file):
+        self.db_file = db_file
+        self.conn = None
+        try:
+            self.conn = sqlite3.connect(db_file)
+            print(f"Connected to SQLite database file '{db_file}'")
+        except Error as e:
+            print(e)
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()
+            print("Connection to SQLite database closed")
+    def create_tables(self):
+        
+        c = "CREATE TABLE IF NOT EXISTS my_table (\n"
+        for i in range(1,190):
+            c = c + "col"+str(i)+ " TEXT,\n"
+        c = c.strip().strip(",")+");"
+        #print(c)
+        self.conn.cursor().execute(c)
+        self.conn.commit()
+    #helper function to convert output to a list to be read into a sql row
+    def make_list(self,d,ticker):
+        lst=[ticker]
+        for d in d[ticker].values():
+            for num in d.values():
+                try:
+                    for x in num.values():
+                        try:
+                            for i in x.values():
+                                try:
+                                    for a in i.values():
+                                        lst.append(a)
+                                except:
+                                    lst.append(i)
+
+                        except:
+                            lst.append(x)
+                except:
+                    lst.append(num)
+        return(lst)
+    #insert data into database, CHECK CACHE FIRST!!!
+    def insert_data(self, data, ticker):
+        l = self.make_list({ticker:data}, ticker)
+        print(l)
+        #insert_query = f"INSERT INTO my_table VALUES ({', '.join(['?']*189)})"
+        insert_query = f"INSERT INTO my_table VALUES ({', '.join(['?'] * 189)})"
+        # Execute the SQL query
+        self.conn.cursor().execute(insert_query, l)
+        
+        # Commit the transaction
+        self.conn.commit()
+    #asks if ticker is in database
+    def check_cache(self, ticker):
+        check_query = "SELECT COUNT(*) FROM my_table WHERE col1 = ?"
+        # Execute the SQL query
+        self.cursor().execute(check_query, (ticker,))
+        result = self.cursor().fetchone()[0]
+        if result > 0:
+            return True
+        else:
+            return False
+    def print_db(self):
+        cursor = self.conn.cursor()
+
+        # Execute a SELECT query to fetch data from a specific table
+        cursor.execute("SELECT * FROM my_table")  # Replace 'your_table' with the name of your table
+
+        # Fetch all rows from the cursor
+        rows = cursor.fetchall()
+
+        # Print the contents of the table
+        for row in rows:
+            print(row)
+
+        # Close the cursor and connection
+        cursor.close()
+        self.conn.close()
+
+"""
+sample usage
+output=valuation("F").get_valuation()
+s = sqltime("database.db")
+s.create_tables()
+s.insert_data(output, "F")
+s.close_connection()
+"""
