@@ -3,6 +3,7 @@ textblob
 requests
 yfinance
 streamlit
+watchdog
 neuralprophet
 matplotlib
 plotly
