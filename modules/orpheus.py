@@ -1,39 +1,3 @@
-import subprocess
-import sys
-
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-def import_or_install(package):
-    try:
-        __import__(package)
-        print(f"{package} is already installed.")
-    except ImportError:
-        print(f"{package} not found, installing...")
-        install(package)
-
-# List of packages you need to use
-packages = ['requests', 
-             'pandas', 
-             'xmltodict', 
-             'bs4', 
-             'os', 
-             'shutil', 
-             'lxml', 
-             'numpy', 
-             'yfinance', 
-             'datetime', 
-             'neuralprophet', 
-             'matplotlib', 
-             'time', 
-             'plotly', 
-             'statsmodels', 
-             'pandas.tseries.holiday', 
-             're']
-
-for package in packages:
-    import_or_install(package)
-
 import requests
 import pandas as pd
 import xmltodict

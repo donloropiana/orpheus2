@@ -1,4 +1,4 @@
-import orpheus
+import modules.orpheus as orpheus
 import streamlit as st
 
 def main():
