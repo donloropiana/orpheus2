@@ -39,8 +39,3 @@ def draw_donut_circle(score: float) -> plt.Figure:
     ax.axis('off')  # Turn off the axis
 
     return fig
-
-# # Streamlit app
-# score = st.slider("Select sentiment score:", -1.0, 1.0, 0.0)
-# fig = draw_donut_circle(score)
-# st.pyplot(fig)
