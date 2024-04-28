@@ -30,7 +30,8 @@ def draw_donut_circle(score: float) -> plt.Figure:
     ax.add_artist(filled_circle)
 
     # Add text in the center of the donut
-    ax.text(0.5, 0.5, f"{score:.2f}", horizontalalignment='center', verticalalignment='center', fontsize=12, fontweight='bold')
+    ax.text(0.5, 0.55, "News Sentiment Score:", horizontalalignment='center', verticalalignment='center', fontsize=9, fontweight='bold')
+    ax.text(0.5, 0.45, f"{score:.2f}", horizontalalignment='center', verticalalignment='center', fontsize=12, fontweight='bold')
 
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
