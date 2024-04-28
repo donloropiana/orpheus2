@@ -1,5 +1,7 @@
 import modules.orpheus as orpheus
 import streamlit as st
+from modules.streamlit_functions import draw_donut_circle
+from modules.sentiment import company_sentiment
 
 def main():
     PAGE_CONFIG = {"page_title":"Orpheus","page_icon":":chart_with_upwards_trend:","layout":"centered"}

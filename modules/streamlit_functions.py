@@ -2,7 +2,16 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-def draw_donut_circle(score):
+def draw_donut_circle(score: float) -> plt.Figure:
+    """
+    Draw a donut circle based on the given score.
+
+    Parameters:
+    score (float): The score to be visualized in the donut circle.
+
+    Returns:
+    plt.Figure: The matplotlib figure object containing the donut circle.
+    """
     # Normalize the score to the range -1 to 1 just in case!
     score = max(min(score, 1), -1)
     

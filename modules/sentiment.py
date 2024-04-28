@@ -5,6 +5,19 @@ import requests
 from bs4 import BeautifulSoup
 
 def query_builder(search_string):
+    """
+    Builds a query string for a search based on the given search string.
+
+    Args:
+        search_string (str): The search string to build the query from.
+
+    Returns:
+        str: The query string.
+
+    Example:
+        >>> query_builder("hello world")
+        '?keyword=hello%20world'
+    """
     query = "?keyword="
     split_string = search_string.split(' ')
     query += split_string[0]
@@ -13,6 +26,15 @@ def query_builder(search_string):
     return query
 
 def get_press_releases(input):
+    """
+    Retrieves press releases from PR Newswire based on the input query.
+
+    Args:
+        input (str): The query string for the press releases.
+
+    Returns:
+        list: A list of dictionaries containing the link and title of each press release.
+    """
     headers = {
         'User-Agent': 'Noah Perelmuter',
         'Email': 'np2446@stern.nyu.edu',
@@ -32,6 +54,15 @@ def get_press_releases(input):
     return results
 
 def get_pr_body(url):
+    """
+    Retrieves the body text of a pull request from the given URL.
+
+    Args:
+        url (str): The URL of the pull request.
+
+    Returns:
+        str: The body text of the pull request.
+    """
     headers = {
     'User-Agent': 'Noah Perelmuter',
     'Email': 'np2446@stern.nyu.edu',
@@ -47,11 +78,34 @@ def get_pr_body(url):
     return text
 
 def sentiment_analysis(text):
+    """
+    Perform sentiment analysis on the given text.
+
+    Args:
+        text (str): The text to analyze.
+
+    Returns:
+        tuple: A tuple containing the polarity and subjectivity scores of the text.
+               The polarity score ranges from -1 to 1, where -1 indicates negative sentiment,
+               0 indicates neutral sentiment, and 1 indicates positive sentiment.
+               The subjectivity score ranges from 0 to 1, where 0 indicates objective text
+               and 1 indicates subjective text.
+    """
     blob = TextBlob(text)
     return blob.polarity, blob.subjectivity
   
 
 def press_release_df(company_name):
+    """
+    Retrieves press releases for a given company, performs sentiment analysis on the press release body,
+    and returns a pandas DataFrame containing the company name, link, title, body, polarity, and subjectivity.
+
+    Args:
+        company_name (str): The name of the company.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the press release information.
+    """
     df = pd.DataFrame(columns=["Company", "Link", "Title", "Body"])
     company_prs = get_press_releases(company_name)
     rows = [{"Company": company_name, "Link": "https://www.prnewswire.com" + pr['link'], "Title": pr['title']} for pr in company_prs]
@@ -65,6 +119,15 @@ def press_release_df(company_name):
     return df
 
 def company_sentiment(ticker: str) -> int:
+    """
+    Calculate the sentiment polarity of a company's press releases.
+
+    Args:
+        ticker (str): The ticker symbol of the company.
+
+    Returns:
+        int: The average sentiment polarity of the company's press releases.
+    """
     df = press_release_df(ticker)
     try:
         polarity = df["Polarity"].mean()
