@@ -56,12 +56,7 @@ def main():
             # display stock chart
             st.subheader("Stock Chart")
             chart_range = st.selectbox("Select Range", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"], index=5)
-            fig = stock_chart(ticker, chart_range)
-            # add our projected price to the chart for reference
-            # TODO: fix this so that it works w matplotlib, likely will need to change the stock_chart function itself to take in the projected price
-            # if st.session_state.projected_price:
-            #     fig.add_hline(y=st.session_state.projected_price, line_dash="dash", line_color="red", line_width=1)
-            #     fig.add_annotation(xref="paper", yref="y", x=0.5, y=st.session_state.projected_price, xanchor="right", text=f"Projected Price: ${st.session_state.projected_price}", showarrow=False, font=dict(family="Courier New, monospace", size=16, color="#ffffff"), align="center", bordercolor="#c7c7c7", borderwidth=2, borderpad=4, bgcolor="red", opacity=0.8)
+            fig = stock_chart(ticker, chart_range, st.session_state.projected_price if st.session_state.projected_price else None)
             st.pyplot(fig)
 
         if st.session_state.sentiment:

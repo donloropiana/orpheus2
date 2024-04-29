@@ -89,7 +89,7 @@ def build_info_table(info: dict, projected_price: float=None) -> pd.DataFrame:
 
     return info_table
 
-def stock_chart(ticker: str, period: str='1y') -> plt.Figure:
+def stock_chart(ticker: str, period: str='1y', projected_price: float=None) -> plt.Figure:
     """
     Display a stock chart for the given stock ticker.
 
@@ -106,8 +106,29 @@ def stock_chart(ticker: str, period: str='1y') -> plt.Figure:
     #reformat ticker to all caps just in case
     ticker = ticker.upper()
 
+    #rename data['Close'] key  to Close Price
+    data.rename(columns={'Close': 'Price at Close'}, inplace=True)
     # Plot the closing price of the stock
-    data['Close'].plot(ax=ax, title=f'{ticker} Stock Price', ylabel='Price (USD)')
+    data['Price at Close'].plot(ax=ax, title=f'{ticker} Stock Price', ylabel='Price (USD)')
+
+    # Add the projected price to the plot as a horizontal line colored red
+    if projected_price:
+        ax.axhline(projected_price, color='r', linestyle='--', label=f'Projected Price: ${projected_price:.2f}')
+    
+    # make chart look sleek
+    ax.legend()
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Close Price (USD)')
+    ax.set_title(f'{ticker} Stock Price')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('grey')
+    ax.spines['bottom'].set_color('grey')
+    ax.tick_params(axis='x', colors='grey')
+    ax.tick_params(axis='y', colors='grey')
+    ax.yaxis.label.set_color('grey')
+    ax.xaxis.label.set_color('grey')
+    ax.title.set_color('grey')
 
     # return the figure
     return fig
