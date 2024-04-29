@@ -38,7 +38,7 @@ def main():
         st.subheader("Overview")
         st.write("")
         if st.session_state.sentiment:
-            fig = draw_donut_circle(st.session_state.sentiment)
+            fig = draw_donut_circle("News Sentiment Score:", st.session_state.sentiment)
             st.pyplot(fig)
     elif choice == 'Fundamental Analysis':
         st.subheader("Fundamental Analysis")

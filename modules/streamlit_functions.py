@@ -2,11 +2,12 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-def draw_donut_circle(score: float) -> plt.Figure:
+def draw_donut_circle(label: str, score: float) -> plt.Figure:
     """
     Draw a donut circle based on the given score.
 
     Parameters:
+    label (str): The label to be displayed in the center of the donut circle.
     score (float): The score to be visualized in the donut circle.
 
     Returns:
@@ -30,7 +31,7 @@ def draw_donut_circle(score: float) -> plt.Figure:
     ax.add_artist(filled_circle)
 
     # Add text in the center of the donut
-    ax.text(0.5, 0.55, "News Sentiment Score:", horizontalalignment='center', verticalalignment='center', fontsize=9, fontweight='bold')
+    ax.text(0.5, 0.55, label, horizontalalignment='center', verticalalignment='center', fontsize=9, fontweight='bold')
     ax.text(0.5, 0.45, f"{score:.2f}", horizontalalignment='center', verticalalignment='center', fontsize=12, fontweight='bold')
 
     ax.set_xlim(0, 1)
