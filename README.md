@@ -9,7 +9,7 @@ python -m venv venv
 ```
 Next, you will need to activate the virtual environment by running the following command:
 
-*For mac*:
+*For mac/linux*:
 ```
 source venv/bin/activate
 ```
