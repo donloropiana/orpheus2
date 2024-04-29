@@ -71,6 +71,7 @@ def main():
             with col2:
                 fig = draw_donut_circle("News Sentiment Score:", st.session_state.sentiment)
                 st.pyplot(fig)
+        #TODO: add table with recent press releases and sentiment scores
     elif choice == 'Fundamental Analysis':
         st.header("Fundamental Analysis")
         if st.session_state.valuation_table:
