@@ -2,7 +2,7 @@ import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
 from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart
-from modules.sentiment import company_sentiment
+from modules.sentiment import company_sentiment, press_release_df
 
 def main():
     PAGE_CONFIG = {"page_title": "Orpheus", "page_icon": ":chart_with_upwards_trend:", "layout": "centered"}
@@ -14,7 +14,7 @@ def main():
     choice = st.sidebar.selectbox('Menu', menu)
 
     form = st.form(key='my_form')
-    ticker = form.text_input(label='Enter Stock Ticker')
+    ticker = form.text_input(label='Enter Stock Ticker (only works with WMG for now)')
     submit_button = form.form_submit_button(label='Submit')
 
 
@@ -61,6 +61,7 @@ def main():
             #     fig.add_annotation(xref="paper", yref="y", x=0.5, y=st.session_state.projected_price, xanchor="right", text=f"Projected Price: ${st.session_state.projected_price}", showarrow=False, font=dict(family="Courier New, monospace", size=16, color="#ffffff"), align="center", bordercolor="#c7c7c7", borderwidth=2, borderpad=4, bgcolor="red", opacity=0.8)
             st.pyplot(fig)
         if st.session_state.sentiment:
+            # display news sentiment
             st.subheader("News Sentiment")
             col1, col2 = st.columns([1, 1])
             with col1:
@@ -71,7 +72,12 @@ def main():
             with col2:
                 fig = draw_donut_circle("News Sentiment Score:", st.session_state.sentiment)
                 st.pyplot(fig)
-        #TODO: add table with recent press releases and sentiment scores
+            # display recent press releases
+            st.subheader("Recent Press Releases")
+            # Update the session state every time the slider is changed
+            recent_press_releases = press_release_df(ticker)
+            # Display the table of recent press releases
+            st.table(recent_press_releases)
     elif choice == 'Fundamental Analysis':
         st.header("Fundamental Analysis")
         if st.session_state.valuation_table:

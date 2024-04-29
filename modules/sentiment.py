@@ -25,7 +25,7 @@ def query_builder(search_string):
         query+= "%20" + remaining_words
     return query
 
-def get_press_releases(input):
+def get_press_releases(input, num_press_releases=5):
     """
     Retrieves press releases from PR Newswire based on the input query.
 
@@ -51,6 +51,8 @@ def get_press_releases(input):
             link = a_tag.get('href', '')  # Use .get() to safely extract attribute values
             title = a_tag.text
             results.append({'link': link, 'title': title})      
+            if len(results) == num_press_releases:
+                break
     return results
 
 def get_pr_body(url):
@@ -95,7 +97,7 @@ def sentiment_analysis(text):
     return blob.polarity, blob.subjectivity
   
 
-def press_release_df(company_name):
+def press_release_df(company_name, num_press_releases=5):
     """
     Retrieves press releases for a given company, performs sentiment analysis on the press release body,
     and returns a pandas DataFrame containing the company name, link, title, body, polarity, and subjectivity.
@@ -106,12 +108,12 @@ def press_release_df(company_name):
     Returns:
         pandas.DataFrame: A DataFrame containing the press release information.
     """
-    df = pd.DataFrame(columns=["Company", "Link", "Title", "Body"])
-    company_prs = get_press_releases(company_name)
-    rows = [{"Company": company_name, "Link": "https://www.prnewswire.com" + pr['link'], "Title": pr['title']} for pr in company_prs]
+    df = pd.DataFrame(columns=["Title", "Link"])
+    company_prs = get_press_releases(company_name, num_press_releases)
+    rows = [{"Title": pr['title'], "Link": "https://www.prnewswire.com" + pr['link']} for pr in company_prs]
     for row in rows:
-        row["Body"] = get_pr_body(row["Link"])
-        polarity, subjectivity = sentiment_analysis(row["Body"])
+        body = get_pr_body(row["Link"])
+        polarity, subjectivity = sentiment_analysis(body)
         row["Polarity"] = polarity
         row["Subjectivity"] = subjectivity
     new_rows_df = pd.DataFrame(rows)
