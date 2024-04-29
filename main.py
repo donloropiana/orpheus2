@@ -1,7 +1,7 @@
 import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
-from modules.streamlit_functions import draw_donut_circle
+from modules.streamlit_helpers import draw_donut_circle, build_info_table
 from modules.sentiment import company_sentiment
 
 def main():
@@ -9,18 +9,6 @@ def main():
     st.set_page_config(**PAGE_CONFIG)
     st.title("Orpheus")
     st.subheader("A Trading Advisor")
-    vertical_center_style = """
-        <style>
-            .vertical-center {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100%;
-            }
-        </style>
-    """
-
-
 
     menu = ["Overview", "Fundamental Analysis", "Quantitative Analysis"]
     choice = st.sidebar.selectbox('Menu', menu)
@@ -49,13 +37,15 @@ def main():
         st.session_state.sentiment = company_sentiment(ticker)
         stock = yf.Ticker(ticker)
         st.session_state.info = stock.info
-
-    # Use stored data when rendering pages
+    
     if choice == 'Overview':
         if st.session_state.info:
             st.header(st.session_state.info['longName'])
             st.subheader("Company Summary")
             st.write(st.session_state.info['longBusinessSummary'])
+            st.subheader("Company Information")
+            info_table = build_info_table(st.session_state.info, st.session_state.valuation_table['summary_table']['Price per Share'] if st.session_state.valuation_table else None)
+            st.table(info_table)
         if st.session_state.sentiment:
             st.subheader("News Sentiment")
             col1, col2 = st.columns([1, 1])
@@ -68,12 +58,19 @@ def main():
                 fig = draw_donut_circle("News Sentiment Score:", st.session_state.sentiment)
                 st.pyplot(fig)
     elif choice == 'Fundamental Analysis':
-        st.subheader("Fundamental Analysis")
+        st.header("Fundamental Analysis")
         if st.session_state.valuation_table:
+            price = st.session_state.info['currentPrice']
+            projection = st.session_state.valuation_table['summary_table']['Price per Share']
+            st.subheader("Valuation Metrics")
+            st.write(f"Current Price: ${price}")
+            st.write(f"Projected Price: ${projection}")
+            st.write(f"Upside Potential: {((projection - price) / price) * 100:.2f}%")
+            st.subheader("Valuation Table")
             st.table(st.session_state.valuation_table)
     elif choice == 'Quantitative Analysis':
-        st.subheader("Quantitative Analysis")
-        st.write("")
+        st.header("Quantitative Analysis")
+        st.write("coming soon...")
 
 if __name__ == '__main__':
     main()
