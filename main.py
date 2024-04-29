@@ -1,7 +1,7 @@
 import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
-from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart
+from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar
 from modules.sentiment import company_sentiment, press_release_df
 
 def main():
@@ -43,13 +43,16 @@ def main():
         if st.session_state.info:
             # display name
             st.header(st.session_state.info['longName'])
+
             # display company summary
             st.subheader("Company Summary")
             st.write(st.session_state.info['longBusinessSummary'])
+
             # display company information (price, projected price, market cap, dividend info)
             st.subheader("Company Information")
             info_table = build_info_table(st.session_state.info, st.session_state.projected_price if st.session_state.projected_price else None)
             st.table(info_table)
+
             # display stock chart
             st.subheader("Stock Chart")
             chart_range = st.selectbox("Select Range", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"], index=5)
@@ -60,6 +63,7 @@ def main():
             #     fig.add_hline(y=st.session_state.projected_price, line_dash="dash", line_color="red", line_width=1)
             #     fig.add_annotation(xref="paper", yref="y", x=0.5, y=st.session_state.projected_price, xanchor="right", text=f"Projected Price: ${st.session_state.projected_price}", showarrow=False, font=dict(family="Courier New, monospace", size=16, color="#ffffff"), align="center", bordercolor="#c7c7c7", borderwidth=2, borderpad=4, bgcolor="red", opacity=0.8)
             st.pyplot(fig)
+
         if st.session_state.sentiment:
             # display news sentiment
             st.subheader("News Sentiment")
@@ -72,12 +76,19 @@ def main():
             with col2:
                 fig = draw_donut_circle("News Sentiment Score:", st.session_state.sentiment)
                 st.pyplot(fig)
+
             # display recent press releases
             st.subheader("Recent Press Releases")
             # Update the session state every time the slider is changed
             recent_press_releases = press_release_df(ticker)
             # Display the table of recent press releases
             st.table(recent_press_releases)
+
+            # display earnings calendar
+            cal = earnings_calendar(ticker)
+            st.subheader("Earnings Calendar")
+            st.table(cal)
+
     elif choice == 'Fundamental Analysis':
         st.header("Fundamental Analysis")
         if st.session_state.valuation_table:

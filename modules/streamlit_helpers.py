@@ -42,7 +42,7 @@ def draw_donut_circle(label: str, score: float) -> plt.Figure:
 
     return fig
 
-def build_info_table(info, projected_price=None):
+def build_info_table(info: dict, projected_price: float=None) -> pd.DataFrame:
     """
     Builds an information table based on the given info dictionary.
 
@@ -89,7 +89,7 @@ def build_info_table(info, projected_price=None):
 
     return info_table
 
-def stock_chart(ticker, period='1y'):
+def stock_chart(ticker: str, period: str='1y') -> plt.Figure:
     """
     Display a stock chart for the given stock ticker.
 
@@ -111,3 +111,37 @@ def stock_chart(ticker, period='1y'):
 
     # return the figure
     return fig
+
+def earnings_calendar(ticker: str) -> pd.DataFrame:
+    """
+    Display the earnings calendar for the given stock ticker.
+
+    Args:
+        ticker (str): The stock ticker symbol.
+    """
+    # Fetch the earnings calendar for the given stock ticker
+    earnings = yf.Ticker(ticker).calendar
+
+    # Display the earnings calendar
+    df = pd.DataFrame(earnings)
+
+    # format Revenue High, Revenue Low, and Revenue Average as currency
+    df['Revenue High'] = df['Revenue High'].map('${:,.2f}'.format)
+    df['Revenue Low'] = df['Revenue Low'].map('${:,.2f}'.format)
+    df['Revenue Average'] = df['Revenue Average'].map('${:,.2f}'.format)
+
+    # format Earnings High, Earnings Low, and Earnings Average as currency
+    df['Earnings High'] = df['Earnings High'].map('${:,.2f}'.format)
+    df['Earnings Low'] = df['Earnings Low'].map('${:,.2f}'.format)
+    df['Earnings Average'] = df['Earnings Average'].map('${:,.2f}'.format)
+
+    # rename earnings to EPS high, EPS low, and EPS average
+    df.rename(columns={'Earnings High': 'EPS High',
+                       'Earnings Low': 'EPS Low',
+                       'Earnings Average': 'EPS Average'}, inplace=True)
+    
+    # get rid of Dividend Date and Ex-Dividend Date
+    df.drop(columns=['Dividend Date', 'Ex-Dividend Date'], inplace=True)
+    
+
+    return df
