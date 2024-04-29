@@ -1,7 +1,7 @@
 import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
-from modules.streamlit_helpers import draw_donut_circle, build_info_table
+from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart
 from modules.sentiment import company_sentiment
 
 def main():
@@ -34,18 +34,32 @@ def main():
         valuation = orpheus.valuation(f"{str(ticker)}")
         valuation.get_valuation()
         st.session_state.valuation_table = valuation.valuation
+        st.session_state.projected_price = valuation.valuation['summary_table']['Price per Share']
         st.session_state.sentiment = company_sentiment(ticker)
         stock = yf.Ticker(ticker)
         st.session_state.info = stock.info
     
     if choice == 'Overview':
         if st.session_state.info:
+            # display name
             st.header(st.session_state.info['longName'])
+            # display company summary
             st.subheader("Company Summary")
             st.write(st.session_state.info['longBusinessSummary'])
+            # display company information (price, projected price, market cap, dividend info)
             st.subheader("Company Information")
-            info_table = build_info_table(st.session_state.info, st.session_state.valuation_table['summary_table']['Price per Share'] if st.session_state.valuation_table else None)
+            info_table = build_info_table(st.session_state.info, st.session_state.projected_price if st.session_state.projected_price else None)
             st.table(info_table)
+            # display stock chart
+            st.subheader("Stock Chart")
+            chart_range = st.selectbox("Select Range", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"], index=5)
+            fig = stock_chart(ticker, chart_range)
+            # add our projected price to the chart for reference
+            # TODO: fix this so that it works w matplotlib, likely will need to change the stock_chart function itself to take in the projected price
+            # if st.session_state.projected_price:
+            #     fig.add_hline(y=st.session_state.projected_price, line_dash="dash", line_color="red", line_width=1)
+            #     fig.add_annotation(xref="paper", yref="y", x=0.5, y=st.session_state.projected_price, xanchor="right", text=f"Projected Price: ${st.session_state.projected_price}", showarrow=False, font=dict(family="Courier New, monospace", size=16, color="#ffffff"), align="center", bordercolor="#c7c7c7", borderwidth=2, borderpad=4, bgcolor="red", opacity=0.8)
+            st.pyplot(fig)
         if st.session_state.sentiment:
             st.subheader("News Sentiment")
             col1, col2 = st.columns([1, 1])
@@ -61,7 +75,7 @@ def main():
         st.header("Fundamental Analysis")
         if st.session_state.valuation_table:
             price = st.session_state.info['currentPrice']
-            projection = st.session_state.valuation_table['summary_table']['Price per Share']
+            projection = st.session_state.projected_price
             st.subheader("Valuation Metrics")
             st.write(f"Current Price: ${price}")
             st.write(f"Projected Price: ${projection}")
