@@ -723,7 +723,7 @@ class valuation:
 
                     # setting the year 1 NOPAT line item
                     if(projection_table['future_years'][f'Year {year+1}'].get('Operating Income', 0).item() > 0): # .iloc[0]
-                        if(projection_table['future_years'][f'Year {year+1}']['Operating Income'].item() < projection_table['base_year']['NOL']): #
+                        if(projection_table['future_years'][f'Year {year+1}'].get('Operating Income', 0).item() < projection_table['base_year']['NOL']): #
                             projection_table['future_years'][f'Year {year+1}']['NOPAT'] = projection_table['future_years'][f'Year {year+1}']['Operating Income']
                         else:
                             projection_table['future_years'][f'Year {year+1}']['NOPAT'] = projection_table['future_years'][f'Year {year+1}']['Operating Income'] - (projection_table['future_years'][f'Year {year+1}']['Operating Income'] - projection_table['base_year']['NOL']) * projection_table['future_years'][f'Year {year+1}']['Tax Rate']
