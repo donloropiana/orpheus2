@@ -1,5 +1,6 @@
 import modules.orpheus as orpheus
 import streamlit as st
+import yfinance as yf
 from modules.streamlit_functions import draw_donut_circle
 from modules.sentiment import company_sentiment
 
@@ -36,6 +37,8 @@ def main():
         st.session_state.valuation_table = None
     if 'sentiment' not in st.session_state:
         st.session_state.sentiment = None
+    if 'info' not in st.session_state:
+        st.session_state.info = None
 
     # Update stored data upon submission
     if submit_button and ticker:
@@ -44,12 +47,17 @@ def main():
         valuation.get_valuation()
         st.session_state.valuation_table = valuation.valuation
         st.session_state.sentiment = company_sentiment(ticker)
+        stock = yf.Ticker(ticker)
+        st.session_state.info = stock.info
 
     # Use stored data when rendering pages
     if choice == 'Overview':
-        st.subheader("Overview")
-        st.write("")
+        if st.session_state.info:
+            st.header(st.session_state.info['longName'])
+            st.subheader("Company Summary")
+            st.write(st.session_state.info['longBusinessSummary'])
         if st.session_state.sentiment:
+            st.subheader("News Sentiment")
             col1, col2 = st.columns([1, 1])
             with col1:
                 st.write("The news sentiment score is a measure of the overall sentiment of news articles related to the stock. "
@@ -61,7 +69,8 @@ def main():
                 st.pyplot(fig)
     elif choice == 'Fundamental Analysis':
         st.subheader("Fundamental Analysis")
-        st.write(st.session_state.valuation_table)
+        if st.session_state.valuation_table:
+            st.table(st.session_state.valuation_table)
     elif choice == 'Quantitative Analysis':
         st.subheader("Quantitative Analysis")
         st.write("")
