@@ -1,7 +1,7 @@
 import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
-from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar
+from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar, neural_prophet_forecast_chart
 from modules.sentiment import company_sentiment, press_release_df
 
 def main():
@@ -83,6 +83,12 @@ def main():
             cal = earnings_calendar(ticker)
             st.subheader("Earnings Calendar")
             st.table(cal)
+
+            # display prediction chart
+            st.subheader("Prediction Chart")
+            periods = st.slider("Select Number of Periods to Predict", 1, 365, 365, 5)
+            forecast_figure = neural_prophet_forecast_chart(ticker, periods)
+            st.pyplot(forecast_figure)
 
     elif choice == 'Fundamental Analysis':
         st.header("Fundamental Analysis")
