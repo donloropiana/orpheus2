@@ -2,6 +2,7 @@ import bcrypt
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 # import Database url from .env
 from dotenv import dotenv_values
 
@@ -21,11 +22,14 @@ engine = create_engine(conn_string)
 print("Connected to database" if engine else "Failed to connect to database")
 
 
+
+
 # Create sessionmaker
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create a Base class
 Base = declarative_base()
+Base.metadata.create_all(bind=engine)
 
 # Define the User model
 class User(Base):
@@ -35,6 +39,7 @@ class User(Base):
     password = Column(String)
 
 # Function to get a database session
+@contextmanager
 def get_db():
     db = SessionLocal()
     try:
