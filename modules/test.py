@@ -39,6 +39,7 @@ def create_user(username: str, password: str):
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     insert_query = "INSERT INTO users (username, password) VALUES (%s, %s)"
     with get_db_connection() as conn, get_cursor(conn) as cursor:
+        cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL)")
         cursor.execute(insert_query, (username, hashed_password))
         conn.commit()
 
@@ -60,3 +61,10 @@ def verify_password(username: str, password: str) -> bool:
             stored_password = result[0]
             return bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8'))
         return False
+
+# Example of creating a user and checking login
+create_user("alice", "alice123")
+if verify_password("alice", "alice123"):
+    print("Login successful!")
+else:
+    print("Login failed!")

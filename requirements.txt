@@ -16,3 +16,4 @@ bs4
 python-dotenv
 bcrypt
 sqlalchemy<2.0
+mysqlclient
