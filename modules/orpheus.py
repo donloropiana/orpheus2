@@ -26,6 +26,8 @@ class valuation:
             'User-Agent' : 'maxbushala@gmail.com'
         }
         
+        self.graph_dict = {}
+        
     def get_bond_data(self):
         bonds_url = 'https://www.worldgovernmentbonds.com/'
         bd_resp = requests.get(bonds_url, headers=self.headers)
@@ -443,10 +445,19 @@ class valuation:
                 return country
         return None
 
-    def cost_of_capital_worksheet(self):
+# Cost of capital worksheet
+    def cost_of_capital_worksheet(self, input_data):
+        
+        shares_outstanding = input_data['Other Inputs'].get('Shares Outstanding', 0)
+        market_price_per_share = input_data['Other Inputs'].get('Current Stock Price', 1)
+        unlevered_beta = input_data['Other Inputs'].get('Unlevered Beta', 1)  # Assuming you store it somewhere or calculate it
+        risk_free_rate = input_data['Other Inputs'].get('Risk Free Rate', 1)
+        erp_for_cost_of_equity = input_data['Other Inputs'].get('Equity Risk Premium', 1)  # This might be calculated as market return - risk free rate
+        
+        
         equity_data = {
-            'shares_outstanding' : 1,
-            'market_price_per_share' : 1,
+            'shares_outstanding' : shares_outstanding,
+            'market_price_per_share' : market_price_per_share,
             'unlevered_beta' : 1,
             'risk_free_rate' : 1,
             'erp_for_cost_of_equity' : 1,
@@ -1057,9 +1068,6 @@ class valuation:
 
         synthetic_default_ratings = credit_default_ratings[2:17].rename(columns=lambda x: credit_default_ratings.iloc[2, x]).reset_index(drop=True).iloc[1:, :]
 
-
-
-
         # https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/vebitda.html
 
         """# **In Development**
@@ -1473,3 +1481,12 @@ class valuation:
         # moodys api key in colab secret keys
         
         print(self.valuation)
+    
+    def multivariate_model(self):
+        # get industry from ticker
+        # get companies in industry
+        # get variables on companies (stock price, stock returns, market returns, market price, price to book ratio, beta, risk)
+        # https://www.sectorspdrs.com/mainfund/XLC
+        xlc_table = pd.DataFrame.from_html('https://www.sectorspdrs.com/mainfund/XLC')[0]
+        print(xlc_table)
+        pass
