@@ -104,19 +104,23 @@ def run_app():
         st.header("Quantitative Analysis")
         st.write("coming soon...")
 
+
 def main():
     PAGE_CONFIG = {"page_title": "Orpheus", "page_icon": ":chart_with_upwards_trend:", "layout": "centered"}
     st.set_page_config(**PAGE_CONFIG)
-    st.title("Login")
     if 'logged_in' not in st.session_state:
-            st.session_state.logged_in = False
-    st.sidebar.title("Login")
+        st.session_state.logged_in = False
+   
+    login_bucket = st.empty()
 
-    username_input = st.sidebar.text_input("Username")
-    password_input = st.sidebar.text_input("Password", type="password")
-    login_button = st.sidebar.button("Login")
-    
     if not st.session_state.logged_in:
+
+        with login_bucket.form('login_form'):
+            st.markdown("## Enter your credentials")
+
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
+            login_button = st.form_submit_button("Login")
         # Check if login button is clicked
         if login_button:
             user_exists = username_exists(username_input)
@@ -131,27 +135,26 @@ def main():
                 st.error("Invalid username or password")
     
     if st.session_state.logged_in:
-        # remove login and register from sidebar
-        st.sidebar.empty()
+        login_bucket.empty()
         run_app()
 
             
 
-    #sidebar for registration
-    st.sidebar.title("Register")
-    username_input = st.sidebar.text_input("Register Username")
-    password_input = st.sidebar.text_input("Register Password", type="password")
-    register_button = st.sidebar.button("Register")
+    # #sidebar for registration
+    # st.sidebar.title("Register")
+    # username_input = st.sidebar.text_input("Register Username")
+    # password_input = st.sidebar.text_input("Register Password", type="password")
+    # register_button = st.sidebar.button("Register")
 
-    # Check if register button is clicked
-    if register_button:
-        user = username_exists(username_input)
-        if user:
-            st.error("Username already exists")
-        else:
-            create_user(username_input, password_input)
-            st.success("Registration successful!")
-            run_app()
+    # # Check if register button is clicked
+    # if register_button:
+    #     user = username_exists(username_input)
+    #     if user:
+    #         st.error("Username already exists")
+    #     else:
+    #         create_user(username_input, password_input)
+    #         st.success("Registration successful!")
+    #         run_app()
 
 if __name__ == '__main__':
     main()
