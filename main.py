@@ -3,10 +3,9 @@ import streamlit as st
 import yfinance as yf
 from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar, neural_prophet_forecast_chart
 from modules.sentiment import company_sentiment, press_release_df
+from modules.auth import username_exists, verify_password, create_user
 
-def main():
-    PAGE_CONFIG = {"page_title": "Orpheus", "page_icon": ":chart_with_upwards_trend:", "layout": "centered"}
-    st.set_page_config(**PAGE_CONFIG)
+def run_app():
     st.title("Orpheus")
     st.subheader("A Trading Advisor")
 
@@ -104,6 +103,58 @@ def main():
     elif choice == 'Quantitative Analysis':
         st.header("Quantitative Analysis")
         st.write("coming soon...")
+
+
+def main():
+    PAGE_CONFIG = {"page_title": "Orpheus", "page_icon": ":chart_with_upwards_trend:", "layout": "centered"}
+    st.set_page_config(**PAGE_CONFIG)
+    if 'logged_in' not in st.session_state:
+        st.session_state.logged_in = False
+   
+    login_bucket = st.empty()
+
+    if not st.session_state.logged_in:
+
+        with login_bucket.form('login_form'):
+            st.markdown("## Enter your credentials")
+
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
+            login_button = st.form_submit_button("Login")
+        # Check if login button is clicked
+        if login_button:
+            user_exists = username_exists(username_input)
+            if user_exists:
+                # Verify password
+                if verify_password(username_input, password_input):
+                    st.success("Login successful!")
+                    st.session_state.logged_in = True
+                else:
+                    st.error("Invalid username or password")
+            else:
+                st.error("Invalid username or password")
+    
+    if st.session_state.logged_in:
+        login_bucket.empty()
+        run_app()
+
+            
+
+    # #sidebar for registration
+    # st.sidebar.title("Register")
+    # username_input = st.sidebar.text_input("Register Username")
+    # password_input = st.sidebar.text_input("Register Password", type="password")
+    # register_button = st.sidebar.button("Register")
+
+    # # Check if register button is clicked
+    # if register_button:
+    #     user = username_exists(username_input)
+    #     if user:
+    #         st.error("Username already exists")
+    #     else:
+    #         create_user(username_input, password_input)
+    #         st.success("Registration successful!")
+    #         run_app()
 
 if __name__ == '__main__':
     main()
