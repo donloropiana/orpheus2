@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 import pandas as pd
 import yfinance as yf
+from neuralprophet import NeuralProphet
 
 def draw_donut_circle(label: str, score: float) -> plt.Figure:
     """
@@ -41,6 +42,7 @@ def draw_donut_circle(label: str, score: float) -> plt.Figure:
     ax.axis('off')  # Turn off the axis
 
     return fig
+
 
 def build_info_table(info: dict, projected_price: float=None) -> pd.DataFrame:
     """
@@ -89,7 +91,8 @@ def build_info_table(info: dict, projected_price: float=None) -> pd.DataFrame:
 
     return info_table
 
-def stock_chart(ticker: str, period: str='1y') -> plt.Figure:
+
+def stock_chart(ticker: str, period: str='1y', projected_price: float=None) -> plt.Figure:
     """
     Display a stock chart for the given stock ticker.
 
@@ -106,8 +109,29 @@ def stock_chart(ticker: str, period: str='1y') -> plt.Figure:
     #reformat ticker to all caps just in case
     ticker = ticker.upper()
 
+    #rename data['Close'] key  to Close Price
+    data.rename(columns={'Close': 'Price at Close'}, inplace=True)
     # Plot the closing price of the stock
-    data['Close'].plot(ax=ax, title=f'{ticker} Stock Price', ylabel='Price (USD)')
+    data['Price at Close'].plot(ax=ax, title=f'{ticker} Stock Price', ylabel='Price (USD)')
+
+    # Add the projected price to the plot as a horizontal line colored red
+    if projected_price:
+        ax.axhline(projected_price, color='r', linestyle='--', label=f'Projected Price: ${projected_price:.2f}')
+    
+    # make chart look sleek
+    ax.legend()
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Close Price (USD)')
+    ax.set_title(f'{ticker} Stock Price')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('grey')
+    ax.spines['bottom'].set_color('grey')
+    ax.tick_params(axis='x', colors='grey')
+    ax.tick_params(axis='y', colors='grey')
+    ax.yaxis.label.set_color('grey')
+    ax.xaxis.label.set_color('grey')
+    ax.title.set_color('grey')
 
     # return the figure
     return fig
@@ -142,6 +166,56 @@ def earnings_calendar(ticker: str) -> pd.DataFrame:
     
     # get rid of Dividend Date and Ex-Dividend Date
     df.drop(columns=['Dividend Date', 'Ex-Dividend Date'], inplace=True)
-    
 
     return df
+
+
+def neural_prophet_forecast_chart(ticker: str, periods: int) -> plt.Figure:
+    """
+    Perform a forecast using the NeuralProphet model.
+    Args:
+        ticker (str): The stock ticker symbol.
+        periods (int): The number of periods to forecast into the future.
+    Returns:
+        plt.Figure: The forecast chart.
+    """
+    # Fetch historical stock data
+    data = yf.download(ticker, start="2010-01-01", end="2024-04-28")
+    
+    # We typically use Adjusted Close prices for predictions
+    data = data[['Adj Close']]
+    data.reset_index(inplace=True)  # Reset index to use the date as a column
+    data.rename(columns={'Date': 'ds', 'Adj Close': 'y'}, inplace=True)  # NeuralProphet expects columns 'ds' and 'y'
+    
+    
+    # Create a NeuralProphet model
+    model = NeuralProphet()
+    
+    # Fit the model to the data
+    model.fit(data, freq='B', epochs=100)
+    
+    # Make a future dataframe for forecasting
+    future = model.make_future_dataframe(data, periods=periods)
+    
+    # Forecast the future values
+    forecast = model.predict(future)
+    
+    # Plot the forecasted values, with the historical data colored black and the forecasted data colored red
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(data['ds'], data['y'], color='black', label='Historical Data')
+    ax.plot(forecast['ds'], forecast['yhat1'], color='red', label='Forecasted Data')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Price (USD)')
+    ax.set_title(f'{ticker} Forecast')
+    ax.legend()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('grey')
+    ax.spines['bottom'].set_color('grey')
+    ax.tick_params(axis='x', colors='grey')
+    ax.tick_params(axis='y', colors='grey')
+    ax.yaxis.label.set_color('grey')
+    ax.xaxis.label.set_color('grey')
+    ax.title.set_color('grey')
+    
+    return fig

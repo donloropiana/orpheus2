@@ -18,6 +18,19 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
+To get the db interaction to work, you will need to run the following commands before downloading dependencies:
+Mac
+```
+brew install mysql
+```
+Windows:
+Follow this stackoverflow article: https://stackoverflow.com/questions/51146117/installing-mysqlclient-in-python-3-6-in-windows
+
+Unix:
+```
+sudo apt-get install python3-dev libmysqlclient-dev
+```
+
 To run Orpheus, you will need to install the required dependencies by running the following command:
 ```
 pip install -r requirements.txt
