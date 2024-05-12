@@ -2,7 +2,7 @@ import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
 from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar, neural_prophet_forecast_chart
-from modules.sentiment import company_sentiment, press_release_df
+from modules.sentiment import company_sentiment, press_release_df, get_ratios, plot_gauge
 from modules.sql import username_exists, verify_password, create_user
 
 def run_app():
@@ -47,6 +47,20 @@ def run_app():
             st.subheader("Company Information")
             info_table = build_info_table(st.session_state.info)
             st.table(info_table)
+
+            # display ratios
+            st.subheader("Ratios")
+            ratios = get_ratios(ticker)
+            if ratios:
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.plotly_chart(plot_gauge(ratios[0], "Debt to Equity Ratio", 0, 5, 2), use_container_width=True)
+                with col2:
+                    st.plotly_chart(plot_gauge(ratios[1], "Current Ratio", 0, 5, 2), use_container_width=True)
+                with col3:
+                    st.plotly_chart(plot_gauge(ratios[2], "Quick Ratio", 0, 5, 2), use_container_width=True)
+            else:
+                st.error("Failed to fetch data for ticker: " + ticker)
 
             # display stock chart
             st.subheader("Stock Chart")

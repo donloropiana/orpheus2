@@ -3,6 +3,7 @@ import pandas as pd
 from textblob import TextBlob
 import requests
 from bs4 import BeautifulSoup
+import plotly.graph_objects as go
 
 def query_builder(search_string):
     """
@@ -137,7 +138,41 @@ def get_ratios(ticker):
     return [debt_to_equity, current_ratio, quick_ratio]
   else:
     print("an error has occured")
-      
+
+def get_ratios(ticker):
+    url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/" + str(ticker) + "?period=annual&apikey=10hzJceDAVRsc3IVuv54PQCkTY70my2L"
+    r = requests.get(url)
+    if r.status_code == 200:
+        bsdata = r.json()
+        tca = bsdata[0]["totalCurrentAssets"]
+        tcl = bsdata[1]["totalCurrentLiabilities"]
+        current_ratio = tca / tcl
+        total_debt = bsdata[0]["totalDebt"]
+        total_equity = bsdata[1]["totalEquity"]
+        debt_to_equity = total_debt / total_equity
+        inventory = bsdata[0]["inventory"]
+        quick_ratio = (tca - inventory) / tcl
+        return [debt_to_equity, current_ratio, quick_ratio]
+    else:
+        print("An error has occurred")
+        return None
+
+def plot_gauge(value, title, min_val, max_val, step_size):
+    fig = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = value,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': title},
+        gauge = {'axis': {'range': [min_val, max_val], 'tickwidth': 1, 'tickcolor': "darkblue"},
+                 'bar': {'color': "darkblue"},
+                 'steps': [{'range': [min_val, value], 'color': 'lightblue'}],
+                 'threshold': {
+                     'line': {'color': "red", 'width': 4},
+                     'thickness': 0.75,
+                     'value': step_size}}))
+
+    return fig
+
 def company_sentiment(ticker: str) -> int:
     """
     Calculate the sentiment polarity of a company's press releases.
