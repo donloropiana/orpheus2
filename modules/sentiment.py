@@ -120,6 +120,24 @@ def press_release_df(company_name, num_press_releases=5):
     df = pd.concat([df, new_rows_df], ignore_index=True)
     return df
 
+#returns Debt-to-Equity, Current Ratio, Quick Ratio
+def get_ratios(ticker):
+  url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/"+str(ticker)+"?period=annual&apikey=mqrLB9Dge9VSTV02TZeTrq3w2VSc6OLA"
+  r = requests.get(url)
+  if r.status_code == 200:
+    bsdata = r.json()
+    tca = bsdata[0]["totalCurrentAssets"]
+    tcl = bsdata[1]["totalCurrentLiabilities"]
+    current_ratio = tca / tcl
+    total_debt = bsdata[0]["totalDebt"]
+    total_equity = bsdata[1]["totalEquity"]
+    debt_to_equity = total_debt/total_equity
+    inventory = bsdata[0]["inventory"]
+    quick_ratio = (tca - inventory)/tcl
+    return [debt_to_equity, current_ratio, quick_ratio]
+  else:
+    print("an error has occured")
+      
 def company_sentiment(ticker: str) -> int:
     """
     Calculate the sentiment polarity of a company's press releases.
