@@ -6,7 +6,7 @@ import pandas as pd
 
 # Load environment variables
 config = dotenv_values(".env")
-password = 'password'
+password = 'N3G+LzHFk9c='
 
 # Database connection details
 connection_config = {

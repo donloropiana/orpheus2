@@ -3,7 +3,7 @@ import streamlit as st
 import yfinance as yf
 from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar, neural_prophet_forecast_chart
 from modules.sentiment import company_sentiment, press_release_df
-from modules.auth import username_exists, verify_password, create_user
+from modules.sql import username_exists, verify_password, create_user
 
 def run_app():
     st.title("Orpheus")
@@ -30,10 +30,6 @@ def run_app():
     # Update stored data upon submission
     if submit_button and ticker:
         st.session_state.submitted_ticker = ticker
-        valuation = orpheus.valuation(f"{str(ticker)}")
-        valuation.get_valuation()
-        st.session_state.valuation_table = valuation.valuation
-        st.session_state.projected_price = valuation.valuation['summary_table']['Price per Share']
         st.session_state.sentiment = company_sentiment(ticker)
         stock = yf.Ticker(ticker)
         st.session_state.info = stock.info
@@ -49,13 +45,13 @@ def run_app():
 
             # display company information (price, projected price, market cap, dividend info)
             st.subheader("Company Information")
-            info_table = build_info_table(st.session_state.info, st.session_state.projected_price if st.session_state.projected_price else None)
+            info_table = build_info_table(st.session_state.info)
             st.table(info_table)
 
             # display stock chart
             st.subheader("Stock Chart")
             chart_range = st.selectbox("Select Range", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"], index=5)
-            fig = stock_chart(ticker, chart_range, st.session_state.projected_price if st.session_state.projected_price else None)
+            fig = stock_chart(ticker, chart_range)
             st.pyplot(fig)
 
         if st.session_state.sentiment:
@@ -89,20 +85,20 @@ def run_app():
             forecast_figure = neural_prophet_forecast_chart(ticker, periods)
             st.pyplot(forecast_figure)
 
-    elif choice == 'Fundamental Analysis':
-        st.header("Fundamental Analysis")
-        if st.session_state.valuation_table:
-            price = st.session_state.info['currentPrice']
-            projection = st.session_state.projected_price
-            st.subheader("Valuation Metrics")
-            st.write(f"Current Price: ${price}")
-            st.write(f"Projected Price: ${projection}")
-            st.write(f"Upside Potential: {((projection - price) / price) * 100:.2f}%")
-            st.subheader("Valuation Table")
-            st.table(st.session_state.valuation_table)
-    elif choice == 'Quantitative Analysis':
-        st.header("Quantitative Analysis")
-        st.write("coming soon...")
+    # elif choice == 'Fundamental Analysis':
+    #     st.header("Fundamental Analysis")
+    #     if st.session_state.valuation_table:
+    #         price = st.session_state.info['currentPrice']
+    #         # projection = st.session_state.projected_price
+    #         st.subheader("Valuation Metrics")
+    #         st.write(f"Current Price: ${price}")
+    #         st.write(f"Projected Price: ${projection}")
+    #         st.write(f"Upside Potential: {((projection - price) / price) * 100:.2f}%")
+    #         st.subheader("Valuation Table")
+    #         st.table(st.session_state.valuation_table)
+    # elif choice == 'Quantitative Analysis':
+    #     st.header("Quantitative Analysis")
+    #     st.write("coming soon...")
 
 
 def main():
