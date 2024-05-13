@@ -110,9 +110,15 @@ def run_app():
     #         st.write(f"Upside Potential: {((projection - price) / price) * 100:.2f}%")
     #         st.subheader("Valuation Table")
     #         st.table(st.session_state.valuation_table)
-    # elif choice == 'Quantitative Analysis':
-    #     st.header("Quantitative Analysis")
-    #     st.write("coming soon...")
+    elif choice == 'Quantitative Analysis':
+        if st.session_state.submitted_ticker:
+          st.header("Quantitative Analysis")
+          st.table(st.session_state.info)
+          st.pyplot(Enter plot here for sns might look like plot.fig)
+          st.metric("% Fail")
+          col1, col2 = st.columns(2)
+          col1.metric("% Fail", enter value)
+          col2.metric("Wind", enter value)
 
 
 def main():
