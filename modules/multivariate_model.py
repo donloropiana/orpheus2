@@ -11,6 +11,15 @@ from sklearn.pipeline import Pipeline
 import multivariate_data_fetch
 import sql
 
+def create_correlation_plot(df):
+    """ Generate and return a correlation matrix plot. """
+    plt.figure(figsize=(12, 10))
+    correlation_matrix = df.corr()
+    ax = sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+    plt.title('Correlation Matrix of Features')
+    plt.close()  # Close the plt figure to prevent it from showing immediately
+    return ax.figure  # Return the figure object for later use
+
 def build_model():
     # Assume sql.table_to_df fetches your data from a database
     df = sql.table_to_df('stock_data').dropna()
@@ -23,11 +32,7 @@ def build_model():
     print("Columns used in X:", X.columns)
 
     # Generating the correlation matrix
-    correlation_matrix = X.corr()
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
-    plt.title('Correlation Matrix of Features')
-    plt.show()
+    correlation_plot = create_correlation_plot(X)
 
     # Data Preprocessing
     numeric_features = X.select_dtypes(include=['int64', 'float64']).columns
@@ -75,7 +80,7 @@ def build_model():
     mse_best = mean_squared_error(y_test, y_pred_best)
     print(f'Improved Mean Squared Error: {mse_best}')
     
-    return best_model, mse_best, 
+    return correlation_plot, best_model, mse_best, 
     
 def predict_price(model, stock):
     stock_data = multivariate_data_fetch.fetch_data_for_stock(stock)
@@ -86,7 +91,7 @@ def predict_price(model, stock):
     return predicted_price, actual_price, mse
 
 if __name__ == '__main__':
-    model, model_mse = build_model()
+    correlation_plot, model, model_mse = build_model()
     predicted_price, actual_price, predict_price_mse = predict_price(model, 'WMG')
     
     print(f"Model Mean Squared Error: {model_mse}")
