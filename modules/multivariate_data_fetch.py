@@ -42,13 +42,6 @@ def fetch_data_for_stock(stock):
         hist['50-day Trailing Volatility'] = hist['Returns'].rolling(window=50).std()
         # Assuming 'hist' is the DataFrame containing the historical stock data
         close_prices = hist['Close']
-
-        # Fit ARIMA model
-        model = ARIMA(close_prices, order=(1, 0, 0))
-        model_fit = model.fit()
-
-        # Get the predicted values
-        predictions = model_fit.predict()
         
         return {
             'Ticker': stock,
@@ -61,7 +54,6 @@ def fetch_data_for_stock(stock):
             '5-Day Trailing Volatility': hist['5-day Trailing Volatility'].iloc[-1] if len(hist) > 5 else 'N/A',
             '20-Day Trailing Volatility': hist['20-day Trailing Volatility'].iloc[-1] if len(hist) > 20 else 'N/A',
             '50-Day Trailing Volatility': hist['50-day Trailing Volatility'].iloc[-1] if len(hist) > 50 else 'N/A',
-            'Time Series Prediction' : predictions.tolist()[-1],
             'Market Cap': info.get('marketCap', np.nan),
             'Beta': info.get('beta', np.nan),
             'PE Ratio': info.get('trailingPE', np.nan),
@@ -108,8 +100,8 @@ def save_to_sql(df):
         cursor.execute("DROP TABLE IF EXISTS stock_data")
         cursor.execute("""
             CREATE TABLE stock_data (
-                Ticker VARCHAR(10),
-                Sector VARCHAR(50),
+                `Ticker` VARCHAR(10),
+                `Sector` VARCHAR(50),
                 `Today Price` FLOAT,
                 `Yesterday Price` FLOAT,
                 `5-Day Trailing Return` FLOAT,
@@ -118,12 +110,11 @@ def save_to_sql(df):
                 `5-Day Trailing Volatility` FLOAT,
                 `20-Day Trailing Volatility` FLOAT,
                 `50-Day Trailing Volatility` FLOAT,
-                'Time Series Prediction' FLOAT,
                 `Market Cap` BIGINT,
                 `Beta` FLOAT,
                 `PE Ratio` FLOAT,
-                EPS FLOAT,
-                ROE FLOAT,
+                `EPS` FLOAT,
+                `ROE` FLOAT,
                 `EV/EBITDA` FLOAT,
                 `Net Margin` FLOAT,
                 `Cash/Revenue Ratio` FLOAT,
