@@ -99,6 +99,14 @@ def run_app():
             forecast_figure = neural_prophet_forecast_chart(ticker, periods)
             st.pyplot(forecast_figure)
 
+            st.header("Multivariate Regression Analysis")
+            st.table(st.session_state.info)
+            st.pyplot("Enter plot here for sns might look like plot.fig") # MAX EDIT THIS
+            st.metric("Pct Fail")
+            col1, col2 = st.columns(2)
+            col1.metric("Pct Fail", enter value) # MAX EDIT THIS
+            col2.metric("Wind", enter value) # MAX EDIT THIS
+
     # elif choice == 'Fundamental Analysis':
     #     st.header("Fundamental Analysis")
     #     if st.session_state.valuation_table:
@@ -112,13 +120,7 @@ def run_app():
     #         st.table(st.session_state.valuation_table)
     elif choice == 'Quantitative Analysis':
         if st.session_state.submitted_ticker:
-          st.header("Quantitative Analysis")
-          st.table(st.session_state.info)
-          st.pyplot(Enter plot here for sns might look like plot.fig)
-          st.metric("% Fail")
-          col1, col2 = st.columns(2)
-          col1.metric("% Fail", enter value)
-          col2.metric("Wind", enter value)
+          
 
 
 def main():
