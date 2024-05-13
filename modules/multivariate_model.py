@@ -8,9 +8,10 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+import multivariate_data_fetch
 import sql
 
-def analysis():
+def build_model():
     # Assume sql.table_to_df fetches your data from a database
     df = sql.table_to_df('stock_data').dropna()
     
@@ -73,6 +74,22 @@ def analysis():
     y_pred_best = best_model.predict(X_test)
     mse_best = mean_squared_error(y_test, y_pred_best)
     print(f'Improved Mean Squared Error: {mse_best}')
+    
+    return best_model, mse_best, 
+    
+def predict_price(model, stock):
+    stock_data = multivariate_data_fetch.fetch_data_for_stock(stock)
+    stock_data = pd.DataFrame(stock_data, index=[0])
+    predicted_price = model.predict(stock_data)
+    actual_price = stock_data['Today Price']
+    mse = mean_squared_error(actual_price, predicted_price)
+    return predicted_price, actual_price, mse
 
 if __name__ == '__main__':
-    analysis()
+    model, model_mse = build_model()
+    predicted_price, actual_price, predict_price_mse = predict_price(model, 'WMG')
+    
+    print(f"Model Mean Squared Error: {model_mse}")
+    print(f"Predicted Price: {predicted_price}")
+    print(f"Actual Price: {actual_price}")
+    
