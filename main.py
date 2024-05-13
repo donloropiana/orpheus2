@@ -99,20 +99,13 @@ def run_app():
             forecast_figure = neural_prophet_forecast_chart(ticker, periods)
             st.pyplot(forecast_figure)
 
-    # elif choice == 'Fundamental Analysis':
-    #     st.header("Fundamental Analysis")
-    #     if st.session_state.valuation_table:
-    #         price = st.session_state.info['currentPrice']
-    #         # projection = st.session_state.projected_price
-    #         st.subheader("Valuation Metrics")
-    #         st.write(f"Current Price: ${price}")
-    #         st.write(f"Projected Price: ${projection}")
-    #         st.write(f"Upside Potential: {((projection - price) / price) * 100:.2f}%")
-    #         st.subheader("Valuation Table")
-    #         st.table(st.session_state.valuation_table)
-    # elif choice == 'Quantitative Analysis':
-    #     st.header("Quantitative Analysis")
-    #     st.write("coming soon...")
+            st.header("Multivariate Regression Analysis")
+            st.table(st.session_state.info)
+            st.pyplot("Enter plot here for sns might look like plot.fig") # MAX EDIT THIS
+            st.metric("Pct Fail")
+            col1, col2 = st.columns(2)
+            col1.metric("Pct Fail", enter value) # MAX EDIT THIS
+            col2.metric("Wind", enter value) # MAX EDIT THIS
 
 
 def main():
