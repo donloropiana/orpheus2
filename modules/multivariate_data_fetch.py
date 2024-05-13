@@ -45,7 +45,6 @@ def fetch_data_for_stock(stock):
         
         return {
             'Ticker': stock,
-            'Sector': info.get('sector', np.nan),
             'Today Price': today_price,
             'Yesterday Price': yesterday_price,
             '5-Day Trailing Return': hist['5-day Trailing Return'].iloc[-1] if len(hist) > 5 else 'N/A',
@@ -101,7 +100,6 @@ def save_to_sql(df):
         cursor.execute("""
             CREATE TABLE stock_data (
                 `Ticker` VARCHAR(10),
-                `Sector` VARCHAR(50),
                 `Today Price` FLOAT,
                 `Yesterday Price` FLOAT,
                 `5-Day Trailing Return` FLOAT,
@@ -125,7 +123,7 @@ def save_to_sql(df):
         for _, row in df.iterrows():
             print(row)
             cursor.execute("""
-                INSERT INTO stock_data VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO stock_data VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, tuple(row))
             print('Inserted')
         conn.commit()
