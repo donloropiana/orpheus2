@@ -8,8 +8,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-import multivariate_data_fetch
-import sql
+from . import multivariate_data_fetch
+from . import sql
 
 def create_correlation_plot(df):
     """ Generate and return a correlation matrix plot. """
@@ -80,7 +80,7 @@ def build_model():
     mse_best = mean_squared_error(y_test, y_pred_best)
     print(f'Improved Mean Squared Error: {mse_best}')
     
-    return correlation_plot, best_model, mse_best, 
+    return correlation_plot, best_model, mse_best 
     
 def predict_price(model, stock):
     stock_data = multivariate_data_fetch.fetch_data_for_stock(stock)

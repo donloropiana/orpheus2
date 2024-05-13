@@ -8,7 +8,7 @@ import time
 import os
 import warnings
 import numpy as np
-from sql import get_db_connection, get_cursor
+from . import sql
 from statsmodels.tsa.arima.model import ARIMA
 
 # Suppress specific FutureWarnings from pandas and yfinance
@@ -95,7 +95,7 @@ def get_stock_data(stocks, batch_size=5, sleep_time=10):
     return clean_df
 
 def save_to_sql(df):
-    with get_db_connection() as conn, get_cursor(conn) as cursor:
+    with sql.get_db_connection() as conn, sql.get_cursor(conn) as cursor:
         cursor.execute("DROP TABLE IF EXISTS stock_data")
         cursor.execute("""
             CREATE TABLE stock_data (
@@ -129,7 +129,7 @@ def save_to_sql(df):
         conn.commit()
 
 def print_sql_data():
-    with get_db_connection() as conn, get_cursor(conn) as cursor:
+    with sql.get_db_connection() as conn, sql.get_cursor(conn) as cursor:
         cursor.execute("SELECT * FROM stock_data")
         for row in cursor.fetchall():
             print(row)

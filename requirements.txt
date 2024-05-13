@@ -17,3 +17,5 @@ python-dotenv
 bcrypt
 sqlalchemy<2.0
 mysqlclient
+seaborn
+sci-kit-learn

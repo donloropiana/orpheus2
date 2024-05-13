@@ -1,10 +1,9 @@
-import modules.orpheus as orpheus
 import streamlit as st
 import yfinance as yf
 from modules.streamlit_helpers import draw_donut_circle, build_info_table, stock_chart, earnings_calendar, neural_prophet_forecast_chart
 from modules.sentiment import company_sentiment, press_release_df, get_ratios, plot_gauge
 from modules.sql import username_exists, verify_password, create_user
-
+from modules.multivariate_model import create_correlation_plot, build_model, predict_price
 def run_app():
     st.title("Orpheus")
     st.subheader("A Trading Advisor")
@@ -100,12 +99,37 @@ def run_app():
             st.pyplot(forecast_figure)
 
             st.header("Multivariate Regression Analysis")
-            st.table(st.session_state.info)
-            st.pyplot("Enter plot here for sns might look like plot.fig") # MAX EDIT THIS
-            st.metric("Pct Fail")
-            col1, col2 = st.columns(2)
-            col1.metric("Pct Fail", enter value) # MAX EDIT THIS
-            col2.metric("Wind", enter value) # MAX EDIT THIS
+            st.write("This section uses a multivariate regression model to predict the stock price of the selected company.")
+            corr_fig, best_model, mse_best = build_model()
+            st.pyplot(corr_fig)
+            predicted_price, actual_price, mse = predict_price(best_model, ticker)
+            actual_price_number = actual_price.iloc[0]
+            potential_upside_number = (predicted_price - actual_price).iloc[0]
+
+            # Use Streamlit's markdown to customize the display of results.
+            st.markdown("""
+                <style>
+                    div.stMarkdown {
+                        font-family: monospace;
+                    }
+                    .big-font {
+                        font-size:20px !important;
+                        font-weight: bold;
+                    }
+                    .info-box {
+                        background-color: rgba(240, 242, 246, 0); 
+                        padding: 10px;
+                        border-radius: 10px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }
+                </style>
+                """, unsafe_allow_html=True)
+
+            st.markdown(f"<div class='info-box'><span class='big-font'>Predicted Price:</span> ${predicted_price[0]:,.2f}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='info-box'><span class='big-font'>Actual Price:</span> ${actual_price_number:,.2f}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='info-box'><span class='big-font'>Potential Upside:</span> ${potential_upside_number:,.2f} per share</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='info-box'><span class='big-font'>Mean Squared Error:</span> {mse:.2f}</div>", unsafe_allow_html=True)
+            
 
 
 def main():
