@@ -107,21 +107,6 @@ def run_app():
             col1.metric("Pct Fail", enter value) # MAX EDIT THIS
             col2.metric("Wind", enter value) # MAX EDIT THIS
 
-    # elif choice == 'Fundamental Analysis':
-    #     st.header("Fundamental Analysis")
-    #     if st.session_state.valuation_table:
-    #         price = st.session_state.info['currentPrice']
-    #         # projection = st.session_state.projected_price
-    #         st.subheader("Valuation Metrics")
-    #         st.write(f"Current Price: ${price}")
-    #         st.write(f"Projected Price: ${projection}")
-    #         st.write(f"Upside Potential: {((projection - price) / price) * 100:.2f}%")
-    #         st.subheader("Valuation Table")
-    #         st.table(st.session_state.valuation_table)
-    elif choice == 'Quantitative Analysis':
-        if st.session_state.submitted_ticker:
-          
-
 
 def main():
     PAGE_CONFIG = {"page_title": "Orpheus", "page_icon": ":chart_with_upwards_trend:", "layout": "centered"}
